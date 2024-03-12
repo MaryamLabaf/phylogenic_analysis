@@ -7,6 +7,7 @@ module load bedtools
 CNV_PATH=$1 # path to the CVN.txt files
 
 cd $CNV_PATH
+mkdir -p CNV_FLT
 
 find . -name '*.txt' -type f -print0 | while IFS= read -r -d $'\0' file; do
     NAME=$(basename $file _CNA_for_phyloWGS.txt)
@@ -16,8 +17,8 @@ find . -name '*.txt' -type f -print0 | while IFS= read -r -d $'\0' file; do
 
     # Check if the filtered file contains more than just the header line
     if [ $(wc -l < $NAME"_filtered.txt") -gt 1 ]; then
-    	head -n 1 $NAME"_filtered.txt" > $NAME"_CNV.txt"
-    	tail -n +2 < $NAME"_filtered.txt" | sort -k1,1 -k2,2n | bedtools merge -c 4,5,6,7 -o max,max,max,mean -i - >> $NAME"_CNV.txt"
+    	head -n 1 $NAME"_filtered.txt" > $CNV_FLT/$NAME"_CNV.txt"
+    	tail -n +2 < $NAME"_filtered.txt" | sort -k1,1 -k2,2n | bedtools merge -c 4,5,6,7 -o max,max,max,mean -i - >> $CNV_FLT/$NAME"_CNV.txt"
     else
         # Print an error message if the filtered file only contains the header line
         echo "Error: Filtered file $NAME"_filtered.txt" contains only the header line. Skipping merging for $file."
